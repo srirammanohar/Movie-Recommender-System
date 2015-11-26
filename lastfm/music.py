@@ -20,10 +20,10 @@ print type(network)
 top_artists=collections.defaultdict(list)
 # temp=user.get_artists(50,True)
 # for i in range(len(temp)):
+# #user.get_artists(50,True)[0].playcount
 #     top_artists[user.get_user()].append([str(temp[i].item), temp[i].playcount])
 #
 # print top_artists
-# #user.get_artists(50,True)[0].playcount
 #
 # friends = user.get_user().get_friends()
 # for i in friends:
@@ -40,18 +40,21 @@ top_artists=collections.defaultdict(list)
 
 
 def create_user_data(userlist, layer ):
-    if layer == 0 :
-        return
-    layer = layer - 1
-    swaplist = []
-    for i in userlist:
-        swaplist = swaplist + i.get_friends()
-        newuser =  pylast.Library(i,network)
-        templ = newuser.get_artists(50,True)
-        if len(top_artists[newuser.get_user()]) == 0:
-            for j in range(len(templ)):
-                top_artists[newuser.get_user()].append([str(templ[j].item),templ[j].playcount])
-    create_user_data(swaplist,layer)
+    try:
+        if layer == 0 :
+            return
+        layer = layer - 1
+        swaplist = []
+        for i in userlist:
+            swaplist = swaplist + i.get_friends()
+            newuser =  pylast.Library(i,network)
+            templ = newuser.get_artists(50,True)
+            if len(top_artists[newuser.get_user()]) == 0:
+                for j in range(len(templ)):
+                    top_artists[newuser.get_user()].append([str(templ[j].item),templ[j].playcount])
+        create_user_data(swaplist,layer)
+    except IndexError:
+        print i
 
 
 create_user_data(user_list,4)
