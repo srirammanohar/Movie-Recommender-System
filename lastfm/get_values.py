@@ -53,9 +53,15 @@ for l in open("user_friends.dat", 'r'):
 SumF=0.0
 AvgF=0.0
 for u in users:
+    count=0.0
+    AvgF=0.0
     for k in Tsim[u]:
+        if (u, k) not in friends:
+            continue
         SumF+=Tsim[u][k]
-    AvgF=SumF/len(Tsim[u].keys())
+        count+=1.0
+    if count > 0.0:
+        AvgF=SumF/count
     for v in users:
         if (u,v) not in friends or Tsim[u][v]<AvgF:
             Fsim[u][v]=0
@@ -77,24 +83,26 @@ alpha=0.7
 Sim = defaultdict(lambda : defaultdict(float))
 
 for u in users:
-	for v in users:
-		Sim[u][v]=(alpha*Tsim[u][v])+(1.0-alpha)*Fsim[u][v]
+    for v in users:
+        Sim[u][v]=(alpha*Tsim[u][v])+(1.0-alpha)*Fsim[u][v]
 
 SimItem = defaultdict(lambda : defaultdict(float))
+print len(items)
 for i in items:
-	for j in items:
-		SimItem[i][j]=0.0
-		denominator=0.0
-		for t in set(item_tags[i]).intersection(set(item_tags[j])):
-			SimItem[i][j]+=min(item_tags[i][t], item_tags[j][t])
-			denominator+=max(item_tags[i][t], item_tags[j][t])
-		for ta in  (set(item_tags[i]).union(set(item_tags[j]))).difference(set(item_tags[i]).intersection(set(item_tags[j]))):
-			denominator+=max(item_tags[i][ta], item_tags[j][ta])
-		SimItem[i][j]=float(SimItem[i][j])/float(denominator)
+    print time.time()
+    for j in items:
+        SimItem[i][j]=0.0
+        denominator=0.0
+        for t in set(item_tags[i]).intersection(set(item_tags[j])):
+            SimItem[i][j]+=min(item_tags[i][t], item_tags[j][t])
+            denominator+=max(item_tags[i][t], item_tags[j][t])
+        for ta in  (set(item_tags[i]).union(set(item_tags[j]))).difference(set(item_tags[i]).intersection(set(item_tags[j]))):
+            denominator+=max(item_tags[i][ta], item_tags[j][ta])
+        SimItem[i][j]=float(SimItem[i][j])/float(denominator)
 
 print "write ItemSim"
 fp=open("ItemSim.dat", 'w')
 for i in items:
-	for j in items:
-		fp.write(u + ',' + v + ',' + str(SimItem[i][j]) + "\n")
+    for j in items:
+        fp.write(i + ',' + j + ',' + str(SimItem[i][j]) + "\n")
 fp.close()
