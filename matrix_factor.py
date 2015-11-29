@@ -3,6 +3,7 @@ import json
 from collections import defaultdict
 from operator import itemgetter
 import time
+import  numpy
 global_user =  defaultdict(int)
 user_artist = defaultdict(int)
 user = []
@@ -60,3 +61,57 @@ with open("user_artists.dat") as f:
 
 
 # print global_user['2']
+dim = 20
+lam = 0.8
+gamma = 0.0002
+u = defaultdict(list)
+p = defaultdict(list)
+user_rating = defaultdict(int)
+er = defaultdict(int)
+with open("user_rating.dat", "r") as f1:
+    f1.seek(0)
+    for line in f1:
+        [uid,aid,r1] = line.strip().split()
+        r = float(r1)
+        u[uid] = [0.1*k for k in range(dim)]
+        p[aid] = [0.09*k for k in range(dim)]
+        user_rating[(uid,aid)]= r
+
+prev_error = 25504871.0
+curr_err = 25504870.0
+while (curr_err<prev_error):
+    prev_error = curr_err
+    curr_err = 0
+
+    for i in user_rating:
+        r = user_rating[i]
+        (us,pr) = i
+        a = u[us]
+        a = numpy.array(a)
+        a= numpy.matrix(a)
+
+        at = a.transpose()
+        #print at
+        b = numpy.array(p[pr])
+        b = numpy.matrix(b)
+        bt = numpy.transpose(b)
+        #print type(at)
+       # print type(b)
+        #print at
+        #print b
+        #print "m"
+        g = a*bt
+
+        er[i] = (r - g[0][0])
+        for j in range(dim):
+            u[us][j] = u[us][j]+ gamma*((er[i]*p[pr][j])- lam*u[us][j] )
+            p[pr][j] = p[pr][j] + gamma*((er[i]*u[us][j]) - lam*p[pr][j])
+
+        curr_err += er[i]*er[i] + lam*((a*at)[0][0] + (b*bt)[0][0])
+print "prev_error"
+print prev_error
+print "curr_error"
+print curr_err
+
+
+
