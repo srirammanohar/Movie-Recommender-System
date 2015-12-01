@@ -32,12 +32,9 @@ for l in open("user_artists.dat",'r'):
     f = int(freq)
     rank[uid].append((aid,f))
 
-print rank['2']
 for i in rank:
     rank[i] = sorted(rank[i],key = lambda x: x[1])
-    if i == '2':
-        print rank[i]
-print rank['2']
+
 
 with open("user_artists.dat") as f:
     f.seek(0)
@@ -58,6 +55,22 @@ with open("user_artists.dat") as f:
 
             freq_imp = 4* (1-gf)
             f1.write(uid + " " + aid + " "+ str(freq_imp) + "\n")
+
+user_list = set()
+user_grp_length=defaultdict(list)
+for l in open("user_rating.dat"):
+    uid,iid,rank = l.strip().split()
+    if uid not in user_list:
+        user_list.add(uid)
+        user_grp_length[uid]=[0,0,0,0]
+    elif rank>3:
+        user_grp_length[uid][3]+=1
+    elif rank>2:
+        user_grp_length[uid][2]+=1
+    elif rank>1:
+        user_grp_length[uid][1]+=1
+    else:
+        user_grp_length[uid][0]+=1
 
 
 # print global_user['2']
@@ -101,8 +114,15 @@ while (curr_err<prev_error):
         #print b
         #print "m"
         g = a*bt
+        if r>3:
+            er[i] = (r - g[0][0])/((user_grp_length[i])[3])**.5
+        elif r>2:
+            er[i] = (r - g[0][0])/((user_grp_length[i])[2])**.5
+        elif r>1:
+            er[i] = (r - g[0][0])/((user_grp_length[i])[1])**.5
+        else:
+            er[i] = (r - g[0][0])/((user_grp_length[i])[0])**.5
 
-        er[i] = (r - g[0][0])
         for j in range(dim):
             u[us][j] = u[us][j]+ gamma*((er[i]*p[pr][j])- lam*u[us][j] )
             p[pr][j] = p[pr][j] + gamma*((er[i]*u[us][j]) - lam*p[pr][j])
